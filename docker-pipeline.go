@@ -53,6 +53,7 @@ type Stage struct {
 
 type StageSpec struct {
 	Image    string
+	Env		 map[string]string
 	Commands []string
 }
 
@@ -68,6 +69,7 @@ func (s *Stage) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	s.Order = i
 	s.Image = st.Image
 	s.Commands = st.Commands
+	s.Env = st.Env
 	i=i+1
 	return nil
 }
@@ -112,6 +114,11 @@ func runStage(docker *client.Client, s Stage) error {
 	
 	ctx := context.Background()
 
+	env := []string{}
+	for k,v := range s.Env {
+		env = append(env, k+"="+v)
+	}
+
 	// create the container as defined by pipeline's stage
 	spec := container.Config{Image: s.Image,
 		Tty:          true,
@@ -119,6 +126,7 @@ func runStage(docker *client.Client, s Stage) error {
 		AttachStderr: true,
 		WorkingDir:   "/work",
 		Cmd:          []string{"/tmp/script.sh"},
+		Env:				env,
 	}
 
 	c, err := docker.ContainerCreate(ctx, &spec, nil, nil, "stage_"+s.Name)
