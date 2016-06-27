@@ -31,9 +31,15 @@ type Stage struct {
 }
 
 type stageSpec struct {
+	// Command
 	Image    string
 	Env      map[string]string
 	Commands []string
+
+	// Build
+	Dockerfile string
+	ContextPath string
+	Tags []string	
 }
 
 // Exec defines what has to run during stage execution 
@@ -56,6 +62,13 @@ func (s *Stage) UnmarshalYAML(unmarshal func(interface{}) error) error {
 			Image:    st.Image,
 			Commands: st.Commands,
 			Env:      st.Env,
+		}
+	}
+	if st.Tags != nil {		
+		s.Exec = &Build{
+			Dockerfile: st.Dockerfile,
+			ContextPath: st.ContextPath,
+			Tags: st.Tags,	
 		}
 	}
 	i = i + 1
