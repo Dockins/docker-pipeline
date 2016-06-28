@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io/ioutil"
 
@@ -9,9 +10,9 @@ import (
 
 func main() {
 
-	f := "docker-pipeline.yml" // TODO cli flag -f
+	var f = flag.String("file", "docker-pipeline.yml", "docker-pipeline yaml file")
 
-	source, err := ioutil.ReadFile(f)
+	source, err := ioutil.ReadFile(*f)
 	if err != nil {
 		panic(err)
 	}
