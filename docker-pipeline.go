@@ -2,78 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/docker/engine-api/client"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
+
+	"github.com/docker/engine-api/client"
 )
-
-// Pipeline define the various steps to be executed to produce artifact
-type Pipeline map[string]Stage
-
-// UnmarshalYAML implements yaml.v2 Unmarshaler interface to set Stage.Name reflecting map's key
-func (p *Pipeline) UnmarshalYAML(unmarshal func(interface{}) error) error {
-	ps := map[string]Stage{}
-	if err := unmarshal(&ps); err != nil {
-		return err
-	}
-	for k, s := range ps {
-		s.Name = k
-	}
-	*p = ps
-	return nil
-}
-
-// Stage defines a  set of commands we run in a docker container
-type Stage struct {
-	Order int    // injected during yml parsing
-	Name  string 
-	Exec  Exec   // the actual execution of this stage
-}
-
-type stageSpec struct {
-	// Command
-	Image    string
-	Env      map[string]string
-	Commands []string
-
-	// Build
-	Dockerfile string
-	ContextPath string
-	Tags []string	
-}
-
-// Exec defines what has to run during stage execution 
-type Exec interface {
-	Run(docker *client.Client, s Stage) error
-}
-
-var i = 0
-
-// UnmarshalYAML implements yaml.v2 Unmarshaler interface to inject an Order attribute
-// while the docker-pipeline yaml file is parsed, as go map isn't ordered (by design).
-func (s *Stage) UnmarshalYAML(unmarshal func(interface{}) error) error {
-	st := stageSpec{}
-	if err := unmarshal(&st); err != nil {
-		return err
-	}
-	s.Order = i
-	if st.Image != "" {
-		s.Exec = &Command{
-			Image:    st.Image,
-			Commands: st.Commands,
-			Env:      st.Env,
-		}
-	}
-	if st.Tags != nil {		
-		s.Exec = &Build{
-			Dockerfile: st.Dockerfile,
-			ContextPath: st.ContextPath,
-			Tags: st.Tags,	
-		}
-	}
-	i = i + 1
-	return nil
-}
 
 func main() {
 
@@ -84,8 +16,7 @@ func main() {
 		panic(err)
 	}
 
-	var pipeline Pipeline
-	err = yaml.Unmarshal(source, &pipeline)
+	pipeline, err := Parse(source)
 	if err != nil {
 		panic(err)
 	}
@@ -113,5 +44,3 @@ func runStage(docker *client.Client, s Stage) error {
 
 	return s.Exec.Run(docker, s)
 }
-
-

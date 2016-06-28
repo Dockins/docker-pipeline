@@ -4,14 +4,15 @@ import (
 	"archive/tar"
 	"bytes"
 	"fmt"
+	"io"
+	"os"
+	"time"
+
 	"github.com/docker/engine-api/client"
 	"github.com/docker/engine-api/types"
 	"github.com/docker/engine-api/types/container"
 	"github.com/docker/engine-api/types/filters"
 	"golang.org/x/net/context"
-	"io"
-	"os"
-	"time"
 )
 
 type Command struct {
@@ -20,7 +21,7 @@ type Command struct {
 	Commands []string
 }
 
-func (cmd *Command) Run(docker *client.Client, s Stage) error {
+func (cmd Command) Run(docker *client.Client, s Stage) error {
 	ctx := context.Background()
 
 	env := []string{}
