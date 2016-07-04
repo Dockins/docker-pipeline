@@ -19,7 +19,7 @@ type Command struct {
 	Image    string
 	Env      map[string]string
 	Commands []string
-	Cache    []string
+	Cached   []string
 	Shell    string
 }
 
@@ -28,6 +28,9 @@ func (cmd Command) Run(docker *client.Client, s Stage) error {
 
 	env := []string{}
 	for k, v := range cmd.Env {
+		if v[0] == '$' {
+			v = os.Getenv(v[1:])
+		}
 		env = append(env, k+"="+v)
 	}
 
@@ -49,7 +52,7 @@ func (cmd Command) Run(docker *client.Client, s Stage) error {
 	binds := []string{pwd + ":/work"}
 
 	// for each path in cache, retrieve or create a docker volume
-	for _, v := range cmd.Cache {
+	for _, v := range cmd.Cached {
 		// TODO generate a unique volume ID based on path
 		vid := "polka_foobar"
 		filter := filters.NewArgs()

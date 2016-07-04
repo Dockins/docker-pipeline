@@ -18,3 +18,27 @@ locally before committing to project repository. Alternate runners can be create
 - a set of commands to run in this container.
 
 pipeline will run Stages in sequence following definition ordering
+
+## Run commands inside a Docker container
+
+This generic stage let you define a docker container to run arbitrary commands. Stage will run commands in sequence
+and fail if any of them do return non 0 status. The current diretory is bind mounted inside container as `/work` so
+you can access source code stored side by side with your `docker-pipeline.yml` file.
+
+Container is removed after commands completion, so if you want some files to be cached from build to build, declare 
+matching folder as a cached one. A volume is created for those cached paths, and re-used on next run. You can 
+typically use this to cache dependency resolution folder for your build tools. 
+
+You can pass environment variables to the container(s). Can be static values set in `docker-pipeline.yml`, or can be 
+infered from your local environment if you prefix them with `$`. 
+
+```
+build:
+    image: maven:3.3.3-jdk-8
+    commands:
+    -   mvn package
+    end:
+    -   FOO=$BAR
+    cached:
+    -   /root/.m2
+```
