@@ -51,10 +51,6 @@ type stageSpec struct {
 	Build       string
 	Dockerfile  string
 	ContextPath string
-
-	// Push
-	Push		string
-	Registry 	string
 }
 
 // Exec defines what has to run during stage execution
@@ -71,7 +67,6 @@ func (s *Stage) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	if err := unmarshal(&st); err != nil {
 		return err
 	}
-	s.Order = i
 	if st.Image != "" {
 		s.Exec = Command{
 			Image:    st.Image,
@@ -86,13 +81,8 @@ func (s *Stage) UnmarshalYAML(unmarshal func(interface{}) error) error {
 			ContextPath: st.ContextPath,
 		}
 	}
-	if st.Push != "" {
-		s.Exec = Push{
-			Tags:        strings.Split(st.Build, " "),
-			Registry: st.Registry
-		}
-	}
-	
+
+	s.Order = i
 	i = i + 1
 	return nil
 }
