@@ -30,7 +30,8 @@ func (cmd Command) Run(docker *client.Client, s Stage) error {
 	}
 
 	// create the container as defined by pipeline's stage
-	spec := container.Config{Image: cmd.Image,
+	containerConfig := container.Config{
+		Image:        cmd.Image,
 		Tty:          true,
 		AttachStdout: true,
 		AttachStderr: true,
@@ -39,7 +40,17 @@ func (cmd Command) Run(docker *client.Client, s Stage) error {
 		Env:          env,
 	}
 
-	c, err := docker.ContainerCreate(ctx, &spec, nil, nil, "stage_"+s.Name)
+	pwd, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+	binds := []string{pwd + ":/work"}
+
+	hostConfig := container.HostConfig{
+		Binds: binds,
+	}
+
+	c, err := docker.ContainerCreate(ctx, &containerConfig, &hostConfig, nil, "stage_"+s.Name)
 	if err != nil {
 		panic(err)
 	}
