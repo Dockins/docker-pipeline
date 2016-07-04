@@ -46,6 +46,8 @@ type stageSpec struct {
 	Image    string
 	Env      map[string]string
 	Commands []string
+	Shell    string
+	Cached   []string
 
 	// Build
 	Build       string
@@ -71,6 +73,8 @@ func (s *Stage) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		s.Exec = Command{
 			Image:    st.Image,
 			Commands: st.Commands,
+			Shell:    st.Shell,
+			Cached:    st.Cached,
 			Env:      st.Env,
 		}
 	}
