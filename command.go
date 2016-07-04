@@ -20,6 +20,7 @@ type Command struct {
 	Env      map[string]string
 	Commands []string
 	Cache    []string
+	Shell    string
 }
 
 func (cmd Command) Run(docker *client.Client, s Stage) error {
@@ -162,7 +163,11 @@ func (cmd *Command) createCommandsTar() *bytes.Buffer {
 
 func (cmd *Command) createScript() []byte {
 	var b bytes.Buffer
-	b.WriteString("#! /bin/sh\n")
+	sh := "bash"
+	if cmd.Shell != "" {
+		sh = cmd.Shell
+	}
+	b.WriteString("#! /bin/" + sh + "\n")
 	b.WriteString("set -e\n")
 	b.WriteString("set -x\n")
 
