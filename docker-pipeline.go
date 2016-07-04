@@ -11,6 +11,7 @@ import (
 func main() {
 
 	var f = flag.String("file", "docker-pipeline.yml", "docker-pipeline yaml file")
+	flag.Parse()
 
 	source, err := ioutil.ReadFile(*f)
 	if err != nil {
