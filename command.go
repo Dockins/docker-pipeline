@@ -3,6 +3,7 @@ package main
 import (
 	"archive/tar"
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -128,7 +129,7 @@ func (cmd Command) Run(docker *client.Client, s Stage) error {
 		if !json.State.Running {
 			if json.State.ExitCode != 0 {
 				fmt.Println("[FAILURE]")
-				panic(nil) // TODO return error
+				return errors.New("Stage " + s.Name + " didn't complete.")
 			}
 			break
 		}

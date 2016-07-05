@@ -9,7 +9,7 @@ database, or Selenium browser for functional tests)
 
 This project do define the `docker-pipeline.yml` file format and provide a runner for local usage. This let end-user test his pipeline
 locally before committing to project repository. Alternate runners can be created for CI/CD servers, typically using 
-[Jenkins' docker-pipeline-plugin](https://github.com/Dockins/docker-pipeline-plugin)
+[Jenkins' docker-pipeline-plugin](https://github.com/Dockins/docker-pipeline-yml-plugin)
 
 # docker-pipeline.yml reference
 
