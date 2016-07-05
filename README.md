@@ -49,13 +49,26 @@ infered from your local environment if you prefix them with `$`.
 ```
 build:
     image: ubuntu
+    env:
+        FOO: "polka"
+        BAR: "$BAR"
     commands:
     -   echo $FOO
     -   echo $BAR
-    end:
-    -   FOO=polka
-    -   BAR=$BAR
 ```
+
+```
+➜ BAR=hello docker-pipeline --file test.yml  
+-----------------------------------------
+ Stage: build
+-----------------------------------------
+ run stage in 1680aca2d78c9c5bf031f9e479d53718759608afb10f7e02416f020f98750070
++ echo polka
+polka
++ echo hello
+hello
+```
+
 
 # TODO
 
