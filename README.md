@@ -56,3 +56,31 @@ build:
     -   FOO=polka
     -   BAR=$BAR
 ```
+
+# TODO
+
+## Compose multiple containers
+You can also declare additional containers to build a complex environment, using a docker-compose like approach
+```
+build:
+    image: maven:3.3.3-jdk-8
+    commands:
+    -   mvn test
+    compose:
+        db:
+            image: mysql
+        selenium:
+            image: selenium/standalone-firefox
+```
+
+such containers will be linked together and all share a volume (current working directory)
+
+
+## Build and push Docker images
+```
+image:
+    build:
+        dockerfile: Dockerfile.production
+        context: . 
+        tag: acme/myapp:latest
+```
