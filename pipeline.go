@@ -25,7 +25,7 @@ func (p Pipeline) Stages() []Stage {
 }
 
 func (p Pipeline) String() string {
-	st := ""
+	st := "\n"
 	for i, s := range p.Stages() {
 		st = st + "#" + strconv.Itoa(i) + " :: " + s.String() + "\n"
 	}

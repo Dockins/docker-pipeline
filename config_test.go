@@ -6,12 +6,31 @@ func TestParseCommand(t *testing.T) {
 
 	configs := [][]string{
 		{`
-build:
-    image: maven:3.3.3-jdk-8
+stage:
+    image: img
+    shell: sh
     commands:
-    -   echo hello    
-    -   mvn -version    
-    `, `#0 :: 0:build:Command:maven:3.3.3-jdk-8::[echo hello,mvn -version]
+    -   run1    
+    -   run2    
+    -   run3    
+
+`, `
+#0 :: 0:stage:Command:img:sh:[run1,run2,run3]
+`,
+		},
+		{`
+stage1:
+    image: img1
+    commands:
+    -   run1    
+
+stage2:
+    image: img2
+    commands:
+    -   run2    
+`, `
+#0 :: 0:stage1:Command:img1::[run1]
+#1 :: 1:stage2:Command:img2::[run2]
 `,
 		},
 	}

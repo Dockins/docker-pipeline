@@ -8,6 +8,7 @@ import (
 
 // Parse yml data to produce a Pipeline data structure
 func Parse(source []byte) (Pipeline, error) {
+	i = 0
 	var pipeline Pipeline
 	err := yaml.Unmarshal(source, &pipeline)
 	if err != nil {
