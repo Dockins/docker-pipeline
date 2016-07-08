@@ -181,3 +181,15 @@ func (cmd *Command) createScript() []byte {
 	}
 	return b.Bytes()
 }
+
+func (cmd Command) String() string {
+	s := "Command:" + cmd.Image + ":" + cmd.Shell + ":["
+	for i, c := range cmd.Commands {
+		if i > 0 {
+			s = s + ","
+		}
+		s = s + c
+	}
+	s = s + "]"
+	return s
+}

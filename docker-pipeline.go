@@ -29,15 +29,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	for i := 0; i < len(pipeline); i++ {
-		for k, s := range pipeline {
-			if s.Order == i {
-				s.Name = k
-				err = runStage(docker, s)
-				if err != nil {
-					log.Fatal(err)
-				}
-			}
+	for _, s := range pipeline.Stages() {
+		err = runStage(docker, s)
+		if err != nil {
+			log.Fatal(err)
 		}
 	}
 

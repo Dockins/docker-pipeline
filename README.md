@@ -9,7 +9,7 @@ database, or Selenium browser for functional tests)
 
 This project do define the `docker-pipeline.yml` file format and provide a runner for local usage. This let end-user test his pipeline
 locally before committing to project repository. Alternate runners can be created for CI/CD servers, typically using 
-[Jenkins' docker-pipeline-plugin](https://github.com/Dockins/docker-pipeline-yml-plugin)
+[Jenkins' docker-pipeline-plugin](https://github.com/Dockins/docker-pipeline-yml-plugin).
 
 # docker-pipeline.yml reference
 
@@ -22,7 +22,7 @@ This generic stage let you define a docker container to run arbitrary commands. 
 and fail if any of them do return non 0 status. The current diretory is bind mounted inside container as `/work` so
 you can access source code stored side by side with your `docker-pipeline.yml` file.
 
-```
+```yaml
 build:
     image: ubuntu
     commands:
@@ -34,7 +34,7 @@ Container is removed after commands completion, so if you want some files to be 
 matching folder as a cached one. A volume is created for those cached paths, and re-used on next run. You can 
 typically use this to cache dependency resolution folder for your build tools. 
 
-```
+```yaml
 build:
     image: maven:3.3.3-jdk-8
     commands:
@@ -46,7 +46,7 @@ build:
 You can pass environment variables to the container(s). Can be static values set in `docker-pipeline.yml`, or can be 
 infered from your local environment if you prefix them with `$`. 
 
-```
+```yaml
 build:
     image: ubuntu
     env:
@@ -58,7 +58,7 @@ build:
 ```
 
 ```
-➜ BAR=hello docker-pipeline --file test.yml  
+$ BAR=hello docker-pipeline --file test.yml  
 -----------------------------------------
  Stage: build
 -----------------------------------------
@@ -74,7 +74,7 @@ hello
 
 ## Compose multiple containers
 You can also declare additional containers to build a complex environment, using a docker-compose like approach
-```
+```yaml
 build:
     image: maven:3.3.3-jdk-8
     commands:
@@ -90,7 +90,7 @@ such containers will be linked together and all share a volume (current working 
 
 
 ## Build and push Docker images
-```
+```yaml
 image:
     build:
         dockerfile: Dockerfile.production

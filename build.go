@@ -19,3 +19,7 @@ func (build Build) Run(docker *client.Client, s Stage) error {
 	*/
 	return nil
 }
+
+func (cmd Build) String() string {
+	return "Build"
+}
