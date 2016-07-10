@@ -29,11 +29,21 @@ func main() {
 		log.Fatal(err)
 	}
 
-	for _, s := range pipeline.Stages() {
-		err = runStage(docker, s)
-		if err != nil {
-			log.Fatal(err)
+	action := flag.Arg(0)
+	if action == "" {
+		action = "run"
+	}
+
+	switch action {
+	case "run":
+		for _, s := range pipeline.Stages() {
+			err = runStage(docker, s)
+			if err != nil {
+				log.Fatal(err)
+			}
 		}
+	default:
+		log.Fatal("Unsupported action " + action)
 	}
 
 }
