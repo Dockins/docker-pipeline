@@ -134,15 +134,6 @@ func (cmd Command) Run(docker *client.Client, s Stage) error {
 			break
 		}
 	}
-
-	/*
-		// in parallel, pipe it's log to stdout
-		docker.ContainerLogs(ctx, c.ID, types.ContainerLogsOptions{
-			ShowStdout: true,
-			ShowStderr: true,
-			Follow:     true})
-	*/
-
 	return nil
 
 }
@@ -165,6 +156,7 @@ func (cmd *Command) createCommandsTar() *bytes.Buffer {
 	return buf
 }
 
+// Create a shell script file to run configured commands
 func (cmd *Command) createScript() []byte {
 	var b bytes.Buffer
 	sh := "bash"
@@ -183,7 +175,7 @@ func (cmd *Command) createScript() []byte {
 }
 
 func (cmd Command) String() string {
-	s := "Command:" + cmd.Image + ":" + cmd.Shell + ":["
+	s := "Command:" + cmd.Image + ":" + cmd.Shell + ":cmds["
 	for i, c := range cmd.Commands {
 		if i > 0 {
 			s = s + ","
@@ -191,5 +183,29 @@ func (cmd Command) String() string {
 		s = s + c
 	}
 	s = s + "]"
+
+	if len(cmd.Env) > 0 {
+		s = s + ":env["
+		i := 0
+		for k, v := range cmd.Env {
+			if i > 0 {
+				s = s + ","
+			}
+			i = i + 1
+			s = s + k + "=" + v
+		}
+		s = s + "]"
+	}
+
+	if len(cmd.Cached) > 0 {
+		s = s + ":cached["
+		for i, c := range cmd.Cached {
+			if i > 0 {
+				s = s + ","
+			}
+			s = s + c
+		}
+		s = s + "]"
+	}
 	return s
 }

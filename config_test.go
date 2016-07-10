@@ -13,9 +13,13 @@ stage:
     -   run1    
     -   run2    
     -   run3    
+    env:
+        foo: bar
+    cached:
+    -   dir1
 
 `, `
-#0 :: 0:stage:Command:img:sh:[run1,run2,run3]
+#0 :: 0:stage:Command:img:sh:cmds[run1,run2,run3]:env[foo=bar]:cached[dir1]
 `,
 		},
 		{`
@@ -29,8 +33,8 @@ stage2:
     commands:
     -   run2    
 `, `
-#0 :: 0:stage1:Command:img1::[run1]
-#1 :: 1:stage2:Command:img2::[run2]
+#0 :: 0:stage1:Command:img1::cmds[run1]
+#1 :: 1:stage2:Command:img2::cmds[run2]
 `,
 		},
 	}
