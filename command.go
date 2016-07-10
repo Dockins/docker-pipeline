@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/docker/engine-api/client"
@@ -22,8 +24,10 @@ type Command struct {
 	Commands []string
 	Cached   []string
 	Shell    string
+	Workdir  string
 }
 
+// Run implement Exec interface to run the configured set of commands inside a docker container
 func (cmd Command) Run(docker *client.Client, s Stage) error {
 	ctx := context.Background()
 
@@ -35,22 +39,30 @@ func (cmd Command) Run(docker *client.Client, s Stage) error {
 		env = append(env, k+"="+v)
 	}
 
+	binds := []string{}
+
+	workdir := cmd.Workdir
+	i := strings.Index(workdir, ":")
+	// Workdir when set as xxx:yyy implies bind mounting xxx as yyy. Typical usage is to bind mount .
+	if i > 0 {
+		path, err := filepath.Abs(workdir[:i])
+		if err != nil {
+			panic(err)
+		}
+		workdir = workdir[i+1:]
+		binds = append(binds, path+":"+workdir)
+	}
+
 	// create the container as defined by pipeline's stage
 	containerConfig := container.Config{
 		Image:        cmd.Image,
 		Tty:          true,
 		AttachStdout: true,
 		AttachStderr: true,
-		WorkingDir:   "/work",
+		WorkingDir:   workdir,
 		Cmd:          []string{"/tmp/script.sh"},
 		Env:          env,
 	}
-
-	pwd, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
-	binds := []string{pwd + ":/work"}
 
 	// for each path in cache, retrieve or create a docker volume
 	for _, v := range cmd.Cached {

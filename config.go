@@ -38,6 +38,7 @@ type stageSpec struct {
 	Commands []string
 	Shell    string
 	Cached   []string
+	Workdir  string
 
 	// Build
 	Build       string
@@ -61,6 +62,7 @@ func (s *Stage) UnmarshalYAML(unmarshal func(interface{}) error) error {
 			Shell:    st.Shell,
 			Cached:   st.Cached,
 			Env:      st.Env,
+			Workdir:  st.Workdir,
 		}
 	}
 	if st.Build != "" {
