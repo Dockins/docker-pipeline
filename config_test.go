@@ -46,8 +46,9 @@ stage2:
 			return
 		}
 
+		pipeline := Pipeline{p, "test"}
 		expected := c[1]
-		actual := p.String()
+		actual := pipeline.String()
 		if actual != expected {
 			t.Errorf("Parsed config does not match expected: \n\nexpected:\n%s \n\nactual:\n%s", expected, actual)
 			return

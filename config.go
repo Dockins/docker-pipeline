@@ -6,20 +6,20 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// Parse yml data to produce a Pipeline data structure
-func Parse(source []byte) (Pipeline, error) {
+// Parse yml data to produce a Pipeline's Stages data structure
+func Parse(source []byte) (Stages, error) {
 	i = 0
-	var pipeline Pipeline
-	err := yaml.Unmarshal(source, &pipeline)
+	var stages Stages
+	err := yaml.Unmarshal(source, &stages)
 	if err != nil {
 		return nil, err
 	}
 
-	return pipeline, nil
+	return stages, nil
 }
 
 // UnmarshalYAML implements yaml.v2 Unmarshaler interface to set Stage.Name reflecting map's key
-func (p *Pipeline) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (p *Stages) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	ps := map[string]Stage{}
 	if err := unmarshal(&ps); err != nil {
 		return err

@@ -8,13 +8,18 @@ import (
 )
 
 // Pipeline define the various steps to be executed to produce artifact
-type Pipeline map[string]Stage
+type Stages map[string]Stage
+
+type Pipeline struct {
+	stages  Stages
+	Project string
+}
 
 // Stages return ordered slice of stages, as described in the config file.
 func (p Pipeline) Stages() []Stage {
 	stages := []Stage{}
-	for i := 0; i < len(p); i++ {
-		for k, s := range p {
+	for i := 0; i < len(p.stages); i++ {
+		for k, s := range p.stages {
 			if s.Order == i {
 				s.Name = k
 				stages = append(stages, s)
