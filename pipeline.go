@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -29,6 +30,26 @@ func (p Pipeline) Stages() []Stage {
 	return stages
 }
 
+// in-memory stash store
+// until we plug a tmp-file based implementation for large contents
+var stash = make(map[string][]byte)
+
+// Stash some binary content so it can later be retrieved by name for further usage in pipeline
+func (p *Pipeline) Stash(name string, content []byte) error {
+	stash[name] = content
+	return nil
+}
+
+// UnStash some stashed content identified by name
+func (p *Pipeline) UnStash(name string) ([]byte, error) {
+	data, ok := stash[name]
+	var err error
+	if !ok {
+		err = errors.New("No stash named " + name)
+	}
+	return data, err
+}
+
 func (p Pipeline) String() string {
 	st := "\n"
 	for i, s := range p.Stages() {
@@ -47,7 +68,7 @@ type Stage struct {
 // Exec defines what has to run during stage execution
 type Exec interface {
 	fmt.Stringer
-	Run(docker *client.Client, s Stage) error
+	Run(docker *client.Client, p *Pipeline, s *Stage) error
 }
 
 func (s Stage) String() string {

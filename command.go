@@ -25,10 +25,12 @@ type Command struct {
 	Cached   []string
 	Shell    string
 	Workdir  string
+	Stash    map[string]string
+	UnStash  map[string]string
 }
 
 // Run implement Exec interface to run the configured set of commands inside a docker container
-func (cmd Command) Run(docker *client.Client, s Stage) error {
+func (cmd Command) Run(docker *client.Client, p *Pipeline, s *Stage) error {
 	ctx := context.Background()
 
 	env := []string{}
@@ -115,6 +117,30 @@ func (cmd Command) Run(docker *client.Client, s Stage) error {
 		panic(err)
 	}
 
+	ci, err := docker.ContainerInspect(ctx, c.ID)
+	if err != nil {
+		panic(err)
+	}
+
+	workdir = ci.Config.WorkingDir // actual workdir
+
+	// unstash configured artifacts
+	for name, path := range cmd.UnStash {
+		data, err := p.UnStash(name)
+		if err != nil {
+			panic(err)
+		}
+
+		if path[0] != '/' {
+			path = workdir + "/" + path
+		}
+
+		err = docker.CopyToContainer(ctx, c.ID, path, bytes.NewReader(data), types.CopyToContainerOptions{})
+		if err != nil {
+			panic(err)
+		}
+	}
+
 	receive := make(chan error, 1)
 	go func() {
 		_, err = io.Copy(os.Stdout, resp.Reader)
@@ -146,6 +172,20 @@ func (cmd Command) Run(docker *client.Client, s Stage) error {
 			break
 		}
 	}
+
+	// stash configured paths
+	for k, v := range cmd.Stash {
+		r, _, err := docker.CopyFromContainer(ctx, c.ID, v)
+		if err != nil {
+			panic(err)
+		}
+		defer r.Close()
+
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(r)
+		p.Stash(k, buf.Bytes())
+	}
+
 	return nil
 
 }

@@ -8,7 +8,7 @@ type Build struct {
 	Tags        []string
 }
 
-func (build Build) Run(docker *client.Client, s Stage) error {
+func (build Build) Run(docker *client.Client, p *Pipeline, s *Stage) error {
 	/*
 	   ctx := context.Background()
 	   r := nil // io.Reader
