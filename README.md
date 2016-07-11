@@ -43,6 +43,8 @@ build:
     -   /root/.m2
 ```
 
+### Environment
+
 You can pass environment variables to the container(s). Can be static values set in `docker-pipeline.yml`, or can be 
 infered from your local environment if you prefix them with `$`. 
 
@@ -69,6 +71,55 @@ polka
 hello
 ```
 
+### Working Directory
+
+You can define the working directory in container using workdir attribute.
+
+```yaml
+build:
+    image: ubuntu
+    workdir: /tmp
+    commands:
+    -   pwd
+```
+
+`workdir` can also be used to let you access a folder in the local working directory. Just prefix workdir
+attribute with some path and a `:` separator, it will be used to bind mount the declared path in container. 
+If you store `docker-pipeline.yml` file with your project source code in SCM, you'll then be able to access
+it to run project build tools inside containers. A relative paths is assumed if you don't explicitely use
+`./` notation for sub-folders in your working copy.
+
+```yaml
+build:
+    image: ubuntu
+    workdir: .:/work
+    commands:
+    -   ls -al
+```
+
+### Stash
+
+Using stash is the recommended way to share artifacts between pipeline stages. 
+`stash` attribute of a stage define a name and path for artifact to extract from the container on succesful completion. This named
+artifact can then be reused by another stage using `unstash` passing stashed artifact name and path inside container to store it 
+before the command is ran. If path for a stash isn't absolute, it is considered relative to the working directory    
+
+```yaml
+compile:
+    image: maven:3.3.3-jdk-8
+    workdir: .:/work
+    commands:
+    -   mvn package
+    stash:
+        bin:target/app.war
+
+test:
+    image:tomcat
+    unstash:
+        bin:/opt/webapps/app.war
+    commands:
+    -   ...    
+```
 
 # TODO
 
